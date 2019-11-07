@@ -158,12 +158,11 @@ class Semantica():
             if(len(node.child) == 1):
                 return self.vazio(node.child[0])		
             else:
-                #tipo1c = self.corpo(node.child[0])
                 tipo2c = self.acao(node.child[1])
                 if(tipo2c != None):
                     return tipo2c
 
-    def expressao_simples(self, node):     
+    def expressao_simples(self, node):
         if len(node.child) ==  1:
             return self.expressao_aditiva(node.child[0])   
         else:
@@ -185,7 +184,6 @@ class Semantica():
             return self.tipo(node.child[0])
 
     def acao(self, node):
-        #tipo_ret_acao = "void"
         if(node.child[0].type == "expressao"):
             return self.expressao(node.child[0])
         elif(node.child[0].type == "declaracao_variaveis"):

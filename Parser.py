@@ -110,7 +110,7 @@ class Parser:
 
     def p_declaracao_funcao(self ,p):
         '''
-        declaracao_funcao : tipo cabecalho
+            declaracao_funcao : tipo cabecalho
         '''
         
         p[0] = Tree('declaracao_funcao',[p[1],p[2]])
@@ -124,7 +124,7 @@ class Parser:
 
     def p_cabecalho(self, p):
     	'''
-        cabecalho : ID ABREPAR lista_parametros FECHAPAR corpo FIM
+            cabecalho : ID ABREPAR lista_parametros FECHAPAR corpo FIM
         '''
     	p[0] = Tree('cabecalho',[p[3],p[5]],p[1])
 
@@ -137,7 +137,7 @@ class Parser:
     def p_lista_parametros1(self, p):
         '''
             lista_parametros : parametro
-                                | vazio
+                             | vazio
         '''
         
         p[0] = Tree('lista_parametros',[p[1]])

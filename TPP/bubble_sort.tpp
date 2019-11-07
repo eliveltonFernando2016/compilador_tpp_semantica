@@ -3,7 +3,6 @@ inteiro: tam
 
 tam := 10
 
-{ preenche o vetor no pior caso }
 preencheVetor()
   inteiro: i
   inteiro: j

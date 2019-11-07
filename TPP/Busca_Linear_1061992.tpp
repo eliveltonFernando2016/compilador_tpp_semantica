@@ -1,8 +1,7 @@
-
 inteiro: A[20]
 
 inteiro busca(inteiro: n)
-	
+
 	inteiro: retorno
 	inteiro: i
 

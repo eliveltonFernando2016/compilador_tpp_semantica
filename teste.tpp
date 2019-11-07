@@ -1,4 +1,3 @@
-inteiro: n
-inteiro: b
+inteiro: a
 
-a:=10.5
+a:=10
