@@ -10,9 +10,9 @@ class Semantica():
         self.tree = Parser(code).ast
 
         self.programa(self.tree)
-        #self.check_main(self.simbolos)
-        #self.check_utilizadas(self.simbolos)
-        #self.check_functions(self.simbolos)
+        self.check_main(self.simbolos)
+        self.check_utilizadas(self.simbolos)
+        self.check_functions(self.simbolos)
     
     def programa(self,node):
         self.lista_declaracoes(node.child[0])
@@ -200,8 +200,8 @@ class Semantica():
             return self.escreva(node.child[0])
         elif(node.child[0].type=="retorna"):
             return self.retorna(node.child[0])
-        elif(node.child[0].type == "error"):
-            return self.error(node.child[0])
+        #elif(node.child[0].type == "error"):
+            #return self.error(node.child[0])
 
     def expressao_aditiva(self, node):
         if(len(node.child) ==  1):
@@ -220,6 +220,192 @@ class Semantica():
 
     def operador_relacional(self, node):
         return None
+
+    def se(self, node):
+        tipo_se = self.expressao(node.child[0])
+        if tipo_se != "logico":
+            print("Erro: Era esperado uma expressão logica para a condição, foi dado uma expressão do tipo: " + tipo_se)
+
+        if(len(node.child) == 2):
+            return self.corpo(node.child[1])
+        else:
+            tipo_c1 = self.corpo(node.child[1])
+            tipo_c2 = self.corpo(node.child[2])
+            if tipo_c1 != tipo_c2:
+                if(tipo_c1 == "void"):
+                    return tipo_c2
+                else:
+                    return tipo_c1
+            return tipo_c1
+
+    def repita(self, node):
+        tipo_se = self.expressao(node.child[1])
+        if tipo_se != "logico":
+            print("Erro: Espera-se uma expressão logica para o SE, foi dado: " + tipo_se)
+
+        return self.corpo(node.child[0])
+
+    def leia(self, node):
+        if self.scope + "-" + node.value not in self.simbolos.keys():
+            if "global-" + node.value not in self.simbolos.keys():
+                print("Erro: " + node.value + " não declarada")
+        return "void"
+
+    def escreva(self, node):
+        tipo_exp = self.expressao(node.child[0])
+		
+        if tipo_exp == "logico":
+            print("Erro: expressao inválida!")
+		
+        return "void"
+
+    def retorna(self, node):
+        tipo_exp = self.expressao(node.child[0])
+
+        if(tipo_exp == "logico"):
+            print("Erro: expressao inválida!")
+        return tipo_exp
+
+    def expressao_multiplicativa(self, node):
+        if(len(node.child) == 1):
+            return self.expressao_unaria(node.child[0])
+        else:
+            tipo1 = self.expressao_multiplicativa(node.child[0])
+            self.operador_multiplicacao(node.child[1])
+            tipo2 = self.expressao_unaria(node.child[2])
+            if(tipo1 != tipo2):
+                print("Warning: Operação com tipos diferentes '" + tipo1 + "' e '" + tipo2)
+            if((tipo1 ==  "flutuante")or(tipo2 ==  "flutuante")):
+                return "flutuante"
+            else:
+                return "inteiro"
+
+    def operador_soma(self, node):
+        return None
+
+    def expressao_unaria(self, node):
+        if(len(node.child) ==  1):
+            return self.fator(node.child[0])
+        else:
+            self.operador_soma(node.child[0])
+            return self.fator(node.child[1])
+
+    def operador_multiplicacao(self, node):
+        return None
+
+    def fator(self, node):
+        if(node.child[0].type ==  "var"):   
+            return self.var(node.child[0])
+        if(node.child[0].type ==  "chamada_funcao"):
+            return self.chamada_funcao(node.child[0])
+        if(node.child[0].type ==  "numero"):
+            return self.numero(node.child[0])
+        else:
+            return self.expressao(node.child[0])
+
+    def var(self,node):
+        nome = self.escopo + "-" + node.value
+        if(len(node.child) == 1):
+            if(nome not in self.simbolos):
+                nome = "global-" + node.value				
+                if(nome not in self.simbolos):
+                    print("Erro: A váriavel '" + node.value + "' não foi declarada")
+
+            if(self.simbolos[nome][3] == False):
+                print("Erro: váriavel '" + nome + "' não foi inicializada")
+            var = self.indice(node.child[0])			
+            self.simbolos[nome][4] = self.simbolos[nome][4] + var
+            self.simbolos[nome][2] = True
+            return self.simbolos[nome][4]
+
+        else:
+            if(nome not in self.simbolos):
+                nome = "global-" + node.value
+                if(nome not in self.simbolos):
+                    print("Erro: A váriavel '" + node.value + "' não foi declarada")
+            if(self.simbolos[nome][3] == False):
+                print("Erro: A váriavel '" + nome + "' não foi inicializada.")
+
+            self.simbolos[nome][2] = True 
+            return self.simbolos[nome][4]
+
+    def chamada_funcao(self, node):
+        if(node.value == "principal" and self.escopo == "principal"):
+            print("Erro: Chamada recursiva para a função principal")
+        if(node.value == "principal" and self.escopo != "principal"):
+            print("Erro: A função '" + self.escopo + "' realiza uma chamada para a função principal.")
+        if node.value not in self.simbolos.keys():
+            print ("Erro: Função " + node.value + " não declarada")
+		
+        self.simbolos[node.value][5] = 1
+        argslista = []
+        argslista.append(self.lista_argumentos(node.child[0]))
+        
+        if(argslista[0] == None):
+            argslista=[]
+        elif(not(type(argslista[0]) is str)):
+            argslista = argslista[0]
+
+        args_esperados = self.simbolos[node.value][2]
+        if(type(args_esperados) is str):
+            args_esperados = []		
+        if(len(argslista) != len(args_esperados)):
+            lesperados = (len(args_esperados))
+            lrecebidos = (len(argslista))
+            print("Erro: Numero de argumentos esperados em '" + node.value + "': " + str(lesperados) + ", quantidade de argumentos recebidos: " + str(lrecebidos))
+
+        for i in range(len(argslista)):
+            if(argslista[i] != args_esperados[i]):
+                print("Erro: Argumento " + str(i) + ", tipo esperado " + args_esperados[i] + ", tipo recebido " +  argslista[i])
+        
+        self.simbolos[node.value][3]=True
+        return self.simbolos[node.value][4]
+
+    def numero(self, node):
+        string = repr(node.value)
+        if "."in string:
+            return "flutuante"
+        else:
+            return "inteiro"
+
+    def lista_argumentos(self, node):
+        if(len(node.child) == 1):
+            if(node.child[0] == None):
+                return 
+            if(node.child[0].type == "expressao"):
+                return (self.expressao(node.child[0]))
+            else:
+                return []
+        else:
+            ret_args = []
+            ret_args.append(self.lista_argumentos(node.child[0]))
+            
+            if(not(type(ret_args[0]) is str)):
+                ret_args = ret_args[0]
+
+            ret_args.append(self.expressao(node.child[1]))
+            return ret_args
+
+    def check_main(self, simbolos):
+        if("principal" not in simbolos.keys()):
+            print("Erro: função principal não declarada")
+
+    def check_utilizadas(self, simbolos):
+        for k,v in simbolos.items():
+            if(v[0] == "variavel"):
+                if(v[2] == False):
+                    escopo=k.split("-")
+                    
+                    if(escopo[0]!= "global"):
+                        print("Warning: Variavel '" + v[1] + "' da função '" + escopo[0] + "' nunca é utilizada")
+                    else:
+                        print("Warning: Variavel '" + v[1] + "' nunca é utilizada")
+
+    def check_functions(self, simbolos):
+        for key, value in simbolos.items():
+            if(value[0] == "funcao" and key != "principal"):					
+                if(value[5] != 1):
+                    print("Warning: Função '" + key + "' nunca utilizada.")
 
 if __name__ == '__main__':
 	code = open(sys.argv[1])
