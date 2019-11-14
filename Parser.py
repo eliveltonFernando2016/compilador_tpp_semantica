@@ -39,7 +39,7 @@ class Parser:
                               | error
         '''
         
-        raise SyntaxError("Erro: declaração \n")
+        raise SyntaxError("Erro: declaracao \n")
 
     def p_declaracao(self, p):
         '''
@@ -54,7 +54,7 @@ class Parser:
             declaracao : error
         '''
 		
-        raise SyntaxError("Erro: declaração \n")
+        raise SyntaxError("Erro: declaracao \n")
 
     def p_declaracao_variaveis(self, p):
         'declaracao_variaveis : tipo DOISPONTOS lista_variaveis'
@@ -65,7 +65,7 @@ class Parser:
             declaracao_variaveis : error DOISPONTOS error 	
         '''
 		
-        raise SyntaxError("Erro: declaração variaveis \n")
+        raise SyntaxError("Erro: declaracao variaveis \n")
 
     def p_inicializacao_variaveis(self, p):
     	'inicializacao_variaveis : atribuicao'
@@ -76,7 +76,7 @@ class Parser:
             inicializacao_variaveis : error
         '''
         
-        raise SyntaxError("Erro: inicialização variaveis \n")
+        raise SyntaxError("Erro: inicializacao variaveis \n")
 
     def p_lista_variaveis(self, p):
         '''
@@ -98,7 +98,7 @@ class Parser:
                             | error
         '''
 
-        raise SyntaxError("Erro: variável \n")
+        raise SyntaxError("Erro: variavel \n")
 
     def p_var(self, p):
         '''
@@ -141,7 +141,7 @@ class Parser:
                    | ABRECOLCH error FECHACOLCH
         '''
 
-        raise SyntaxError("Erro: sintaxe de indexação \n")
+        raise SyntaxError("Erro: sintaxe de indexacao \n")
 
     def p_tipo(self, p):
         '''
@@ -162,7 +162,7 @@ class Parser:
             tipo : error
         '''
 
-        raise SyntaxError("Erro: tipo de variável \n")
+        raise SyntaxError("Erro: tipo de variavel \n")
 
     def p_declaracao_funcao(self ,p):
         '''
@@ -184,7 +184,7 @@ class Parser:
                               | error
         '''
 
-        raise SyntaxError("Erro: declaração de função \n")
+        raise SyntaxError("Erro: declaracao de funcao \n")
 
     def p_cabecalho(self, p):
     	'''
@@ -197,7 +197,7 @@ class Parser:
             cabecalho : ID ABREPAR error FECHAPAR error FIM
         '''
 
-        raise SyntaxError("Erro: cabeçalho \n")
+        raise SyntaxError("Erro: cabecalho \n")
 
     def p_lista_parametros(self, p):
         '''
@@ -220,7 +220,7 @@ class Parser:
             lista_parametros : error VIRGULA error
         '''
 
-        raise SyntaxError("Erro: parâmetro \n")
+        raise SyntaxError("Erro: parametro \n")
 
     def p_parametro(self, p):
     	'''
@@ -233,7 +233,7 @@ class Parser:
             parametro : error DOISPONTOS ID
         '''
 
-        raise SyntaxError("Erro: parâmetro \n")
+        raise SyntaxError("Erro: parametro \n")
 
     def p_parametro1(self, p):
     	'''
@@ -256,15 +256,13 @@ class Parser:
             corpo : vazio
         '''
 
-        #p[0] = Tree('corpo', [p[1]])
-
     def p_corpo_error(self, p):
         '''
             corpo : error error
                   | error
         '''
 
-        raise SyntaxError("Erro: corpo de função \n")
+        raise SyntaxError("Erro: corpo de funcao \n")
 
     def p_acao(self ,p):
     	'''
@@ -283,7 +281,7 @@ class Parser:
             acao : error
         '''
         
-        raise SyntaxError("Erro: ação \n")
+        raise SyntaxError("Erro: acao \n")
 
     def p_se(self, p):
         '''
@@ -312,7 +310,7 @@ class Parser:
                | SE error ENTAO error SENAO error FIM
         '''
 
-        raise SyntaxError("Erro: expressão se \n")
+        raise SyntaxError("Erro: expressao se \n")
 
     def p_repita(self, p):
         '''
@@ -330,7 +328,7 @@ class Parser:
             repita : REPITA error ATE error
         '''
         
-        raise SyntaxError("Erro: expressão repita \n")
+        raise SyntaxError("Erro: expressao repita \n")
 
     def p_atribuicao(self, p):
         '''
@@ -345,7 +343,7 @@ class Parser:
             atribuicao : error ATRIBUICAO error
         '''
 		
-        raise SyntaxError("Erro: atribuição \n")
+        raise SyntaxError("Erro: atribuicao \n")
 
     def p_leia(self, p):
     	'''
@@ -358,7 +356,7 @@ class Parser:
             leia : error error error error
         '''
 
-        raise SyntaxError("Erro: expressão LEIA \n")
+        raise SyntaxError("Erro: expressao LEIA \n")
 
     def p_escreva(self, p):
     	'''
@@ -371,7 +369,7 @@ class Parser:
             escreva : ESCREVA ABREPAR error FECHAPAR
         '''
 
-        raise SyntaxError("Erro: expressão ESCREVA \n")
+        raise SyntaxError("Erro: expressao ESCREVA \n")
 
     def p_retorna(self, p):
     	'''
@@ -384,7 +382,7 @@ class Parser:
             retorna : RETORNA ABREPAR error FECHAPAR
         '''
 
-        raise SyntaxError("Erro: expressão RETORNA \n")
+        raise SyntaxError("Erro: expressao RETORNA \n")
 
     def p_expressao(self, p):
     	'''
@@ -398,7 +396,7 @@ class Parser:
             expressao : error
         '''
 
-        raise SyntaxError("Erro: expressão \n")
+        raise SyntaxError("Erro: expressao \n")
 
     def p_expressao_simples(self, p):
         '''
@@ -420,7 +418,7 @@ class Parser:
                               | error error error
         '''
 
-        raise SyntaxError("Erro: expressão simples \n")
+        raise SyntaxError("Erro: expressao simples \n")
 
     def p_expressao_aditiva(self, p):
         '''
@@ -435,7 +433,7 @@ class Parser:
                               | error error error
         '''
 
-        raise SyntaxError("Erro: expressão aditiva \n")
+        raise SyntaxError("Erro: expressao aditiva \n")
 
     def p_expressao_aditiva1(self, p):
         '''
@@ -548,8 +546,6 @@ class Parser:
             lista_argumentos : vazio
         '''
 
-        #p[0] = Tree('lista_argumentos1', [p[1]])
-
     def p_vazio(self, p):
         '''
             vazio :
@@ -557,7 +553,8 @@ class Parser:
 
     def p_error(self, p):
         if p:
-            raise SyntaxError(" '%s', linha %d" % (p.value, p.lineno))
+            msg = "'%s', linha %d" % (p.value, p.lineno)
+            raise SyntaxError(msg)
         else:
-            raise SyntaxError(" definições incompletas!")
+            raise SyntaxError("definicoes incompletas!")
             exit(1)
