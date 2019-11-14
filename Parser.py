@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 from Lexer import Lexer
 from ply import yacc
 from Tree import Tree
@@ -14,7 +11,7 @@ class Parser:
                             ('left', 'SOMA', 'SUBR'),
                             ('left', 'VEZES', 'DIVIDE')
                            )
-        parser = yacc.yacc(debug=True, module=self, optimize=False)
+        parser = yacc.yacc(debug=False, module=self, optimize=False)
         self.ast = parser.parse(code)
 
     def p_programa(self, p):
@@ -105,7 +102,7 @@ class Parser:
 
     def p_var(self, p):
         '''
-        var : ID
+            var : ID
         '''
 
         p[0] = Tree('var',[],p[1])
@@ -119,7 +116,7 @@ class Parser:
 
     def p_var_error(self, p):
         '''
-            var : IDENTIFICADOR error
+            var : ID error
         '''
 
         raise SyntaxError("Erro: variavel \n")
@@ -140,8 +137,8 @@ class Parser:
 
     def p_indice_error(self, p):
         '''
-            indice : indice ABRECOL error FECHACOL
-                   | ABRECOL error FECHACOL
+            indice : indice ABRECOLCH error FECHACOLCH
+                   | ABRECOLCH error FECHACOLCH
         '''
 
         raise SyntaxError("Erro: sintaxe de indexação \n")
@@ -197,14 +194,15 @@ class Parser:
 
     def p_cabecalho_error(self, p):
         '''
-            cabecalho : IDENTIFICADOR ABREPAR error FECHAPAR error FIM
+            cabecalho : ID ABREPAR error FECHAPAR error FIM
         '''
 
         raise SyntaxError("Erro: cabeçalho \n")
 
     def p_lista_parametros(self, p):
         '''
-            lista_parametros : lista_parametros VIRGULA lista_parametros | parametro
+            lista_parametros : lista_parametros VIRGULA lista_parametros
+                             | parametro
         '''
         
         if len(p) == 4:
@@ -232,7 +230,7 @@ class Parser:
 
     def p_parametro1_error(self, p):
         '''
-            parametro : error DOISPONTOS IDENTIFICADOR
+            parametro : error DOISPONTOS ID
         '''
 
         raise SyntaxError("Erro: parâmetro \n")
@@ -277,7 +275,6 @@ class Parser:
              | leia
              | escreva
              | retorna
-             | error
     	''' 
     	p[0] = Tree('acao', [p[1]])
 
@@ -290,11 +287,11 @@ class Parser:
 
     def p_se(self, p):
         '''
-            SE expressao ENTAO corpo FIM
+            se : SE expressao ENTAO corpo FIM
             | SE expressao ENTAO corpo SENAO corpo FIM
             | SE ABREPAR expressao FECHAPAR ENTAO corpo SENAO corpo FIM
         '''
-        
+
         if len(p) == 6:
             p[0] = Tree('se', [p[2], p[4]])
         elif len(p) == 8:
