@@ -36,6 +36,14 @@ class Parser:
         '''
         p[0] = Tree('lista_declaracoes1', [p[1]])
 
+    def p_lista_declaracoes_error(self, p):
+        '''
+            lista_declaracoes : error error
+                              | error
+        '''
+        
+        raise SyntaxError("Erro: declaração \n")
+
     def p_declaracao(self, p):
         '''
         declaracao : declaracao_variaveis
@@ -44,13 +52,34 @@ class Parser:
         '''
         p[0] = Tree('declaracao', [p[1]])
 
+    def p_declaracao_error(self, p):
+        '''
+            declaracao : error
+        '''
+		
+        raise SyntaxError("Erro: declaração \n")
+
     def p_declaracao_variaveis(self, p):
         'declaracao_variaveis : tipo DOISPONTOS lista_variaveis'
         p[0] = Tree('declaracao_variaveis', [p[1],p[3]])
 
+    def p_declaracao_variaveis_error(self, p):
+        '''
+            declaracao_variaveis : error DOISPONTOS error 	
+        '''
+		
+        raise SyntaxError("Erro: declaração variaveis \n")
+
     def p_inicializacao_variaveis(self, p):
     	'inicializacao_variaveis : atribuicao'
     	p[0] = Tree('inicializacao_variaveis', [p[1]])
+
+    def p_inicializacao_variaveis_error(self, p):
+        '''
+            inicializacao_variaveis : error
+        '''
+        
+        raise SyntaxError("Erro: inicialização variaveis \n")
 
     def p_lista_variaveis(self, p):
         '''
@@ -66,6 +95,14 @@ class Parser:
 
         p[0] = Tree('lista_variaveis1', [p[1]])
 
+    def p_lista_variaveis_error(self, p):
+        '''
+            lista_variaveis : error VIRGULA error
+                            | error
+        '''
+
+        raise SyntaxError("Erro: variável \n")
+
     def p_var(self, p):
         '''
         var : ID
@@ -73,12 +110,19 @@ class Parser:
 
         p[0] = Tree('var',[],p[1])
 
-    def p_var1(self, p):	
+    def p_var1(self, p):
         '''
 	        var : ID indice
         '''
 
         p[0] = Tree('var1', [p[2]], p[1])
+
+    def p_var_error(self, p):
+        '''
+            var : IDENTIFICADOR error
+        '''
+
+        raise SyntaxError("Erro: variavel \n")
 
     def p_indice(self, p):
         '''
@@ -94,6 +138,14 @@ class Parser:
 
         p[0] = Tree('indice1',[p[2]])
 
+    def p_indice_error(self, p):
+        '''
+            indice : indice ABRECOL error FECHACOL
+                   | ABRECOL error FECHACOL
+        '''
+
+        raise SyntaxError("Erro: sintaxe de indexação \n")
+
     def p_tipo(self, p):
         '''
             tipo : INTEIRO
@@ -107,6 +159,13 @@ class Parser:
         '''
 		
         p[0] = Tree('tipo1',[], p[1])
+
+    def p_tipo_error(self, p):
+        '''
+            tipo : error
+        '''
+
+        raise SyntaxError("Erro: tipo de variável \n")
 
     def p_declaracao_funcao(self ,p):
         '''
@@ -122,31 +181,61 @@ class Parser:
 
         p[0] = Tree('declaracao_funcao', [p[1]])
 
+    def p_declaracao_funcao_error(self, p):
+        '''
+            declaracao_funcao : error error
+                              | error
+        '''
+
+        raise SyntaxError("Erro: declaração de função \n")
+
     def p_cabecalho(self, p):
     	'''
             cabecalho : ID ABREPAR lista_parametros FECHAPAR corpo FIM
         '''
     	p[0] = Tree('cabecalho',[p[3],p[5]],p[1])
 
+    def p_cabecalho_error(self, p):
+        '''
+            cabecalho : IDENTIFICADOR ABREPAR error FECHAPAR error FIM
+        '''
+
+        raise SyntaxError("Erro: cabeçalho \n")
+
     def p_lista_parametros(self, p):
         '''
-        lista_parametros : lista_parametros VIRGULA lista_parametros
+            lista_parametros : lista_parametros VIRGULA lista_parametros | parametro
         '''
-        p[0] = Tree('lista_parametros',[p[1],p[3]])
+        
+        if len(p) == 4:
+            p[0] = Tree('lista_parametros', [p[1], p[3]])
+        elif len(p) == 2:
+            p[0] = Tree('lista_parametros', [p[1]])
 
     def p_lista_parametros1(self, p):
         '''
-            lista_parametros : parametro
-                             | vazio
+            lista_parametros : vazio
         '''
-        
-        p[0] = Tree('lista_parametros',[p[1]])
+
+    def p_lista_parametros_error(self, p):
+        '''
+            lista_parametros : error VIRGULA error
+        '''
+
+        raise SyntaxError("Erro: parâmetro \n")
 
     def p_parametro(self, p):
     	'''
-        parametro : tipo DOISPONTOS ID
+            parametro : tipo DOISPONTOS ID
         '''
     	p[0] = Tree('parametro', [p[1]], p[3])
+
+    def p_parametro1_error(self, p):
+        '''
+            parametro : error DOISPONTOS IDENTIFICADOR
+        '''
+
+        raise SyntaxError("Erro: parâmetro \n")
 
     def p_parametro1(self, p):
     	'''
@@ -159,14 +248,25 @@ class Parser:
             corpo : corpo acao
         '''
         
-        p[0] = Tree('corpo',[p[1],p[2]])
+        if len(p) == 3:
+            p[0] = Tree('corpo', [p[1], p[2]])
+        elif len(p) == 2:
+            p[0] = Tree('corpo', [p[1]])
 
     def p_corpo1(self, p):
         '''
             corpo : vazio
         '''
 
-        p[0] = Tree('corpo', [p[1]])
+        #p[0] = Tree('corpo', [p[1]])
+
+    def p_corpo_error(self, p):
+        '''
+            corpo : error error
+                  | error
+        '''
+
+        raise SyntaxError("Erro: corpo de função \n")
 
     def p_acao(self ,p):
     	'''
@@ -181,31 +281,74 @@ class Parser:
     	''' 
     	p[0] = Tree('acao', [p[1]])
 
-    def p_se(self, p):
+    def p_acao_error(self, p):
         '''
-            se : SE expressao ENTAO corpo FIM
+            acao : error
         '''
         
-        p[0] = Tree('se', [p[2],p[4]])
+        raise SyntaxError("Erro: ação \n")
+
+    def p_se(self, p):
+        '''
+            SE expressao ENTAO corpo FIM
+            | SE expressao ENTAO corpo SENAO corpo FIM
+            | SE ABREPAR expressao FECHAPAR ENTAO corpo SENAO corpo FIM
+        '''
+        
+        if len(p) == 6:
+            p[0] = Tree('se', [p[2], p[4]])
+        elif len(p) == 8:
+            p[0] = Tree('se', [p[2], p[4], p[6]])
+        elif len(p) == 10:
+            p[0] = Tree('se', [p[3], p[6], p[8]])
 
     def p_se1(self, p):
         '''
-            se : SE expressao ENTAO corpo SENAO corpo FIM
+            se : SE ABREPAR expressao FECHAPAR ENTAO corpo FIM
         '''
 
-        p[0] = Tree('se', [p[2], p[4], p[6]])
+        p[0] = Tree('se', [p[3], p[6]])
+
+    def p_se_error(self, p):
+        '''
+            se : SE error ENTAO error FIM
+               | SE error ENTAO error SENAO error FIM
+        '''
+
+        raise SyntaxError("Erro: expressão se \n")
 
     def p_repita(self, p):
-    	'''
-            repita : REPITA corpo ATE expressao
         '''
-    	p[0] = Tree('repita',[p[2],p[4]])
+            repita : REPITA corpo ATE expressao
+                   | REPITA corpo ATE ABREPAR expressao FECHAPAR
+        '''
+    	
+        if len(p) == 5:
+            p[0] = Tree('repita', [p[2], p[4]])
+        elif len(p) == 7:
+            p[0] = Tree('repita', [p[2], p[5]])
+
+    def p_repita_error(self, p):
+        '''
+            repita : REPITA error ATE error
+        '''
+        
+        raise SyntaxError("Erro: expressão repita \n")
 
     def p_atribuicao(self, p):
-    	'''
+        '''
             atribuicao : var ATRIBUICAO expressao
         '''
-    	p[0] = Tree('atribuicao',[p[1],p[3]])
+        
+        if len(p):
+            p[0] = Tree('atribuicao', [p[1], p[3]], p[2])
+
+    def p_atribuicao_error(self, p):
+        '''
+            atribuicao : error ATRIBUICAO error
+        '''
+		
+        raise SyntaxError("Erro: atribuição \n")
 
     def p_leia(self, p):
     	'''
@@ -213,11 +356,25 @@ class Parser:
         '''
     	p[0] = Tree('leia',[],p[3])
 
+    def p_leia_error(self, p):
+        '''
+            leia : error error error error
+        '''
+
+        raise SyntaxError("Erro: expressão LEIA \n")
+
     def p_escreva(self, p):
     	'''
             escreva : ESCREVA ABREPAR expressao FECHAPAR
         '''
     	p[0] = Tree('escreva',[p[3]])
+
+    def p_escreva_error(self, p):
+        '''
+            escreva : ESCREVA ABREPAR error FECHAPAR
+        '''
+
+        raise SyntaxError("Erro: expressão ESCREVA \n")
 
     def p_retorna(self, p):
     	'''
@@ -225,12 +382,26 @@ class Parser:
         '''
     	p[0] = Tree('retorna',[p[3]])
 
+    def p_retorna_error(self, p):
+        '''
+            retorna : RETORNA ABREPAR error FECHAPAR
+        '''
+
+        raise SyntaxError("Erro: expressão RETORNA \n")
+
     def p_expressao(self, p):
     	'''
             expressao : expressao_simples
                     | atribuicao
     	'''
     	p[0] = Tree('expressao',[p[1]])
+
+    def p_expressao_error(self, p):
+        '''
+            expressao : error
+        '''
+
+        raise SyntaxError("Erro: expressão \n")
 
     def p_expressao_simples(self, p):
         '''
@@ -246,12 +417,28 @@ class Parser:
 
         p[0] = Tree('expressao_simples', [p[1], p[2], p[3]])
 
+    def p_expressao_simples_error(self, p):
+        '''
+            expressao_simples : error
+                              | error error error
+        '''
+
+        raise SyntaxError("Erro: expressão simples \n")
+
     def p_expressao_aditiva(self, p):
         '''
             expressao_aditiva : expressao_multiplicativa
         '''
         
         p[0] = Tree('expressao_aditiva',[p[1]])
+
+    def p_expressao_aditiva_error(self, p):
+        '''
+            expressao_aditiva : error
+                              | error error error
+        '''
+
+        raise SyntaxError("Erro: expressão aditiva \n")
 
     def p_expressao_aditiva1(self, p):
         '''
@@ -269,7 +456,7 @@ class Parser:
     
     def p_expressao_multiplicativa1(self, p):
         '''
-            expressao_multiplicativa : expressao_multiplicativa operador_multiplicacao expressao_unaria
+            expressao_multiplicativa : expressao_aditiva operador_soma expressao_multiplicativa
         '''
 
         p[0] = Tree('expressao_multiplicativa', [p[1], p[2], p[3]])
@@ -313,7 +500,7 @@ class Parser:
     def p_operador_multiplicacao(self, p):
         '''
             operador_multiplicacao : VEZES
-                                        | DIVIDE
+                                   | DIVIDE
         '''
 
         p[0] = Tree('operador_multiplicacao',[], str(p[1]))
@@ -351,17 +538,20 @@ class Parser:
     def p_lista_argumentos(self, p):
         '''
             lista_argumentos : lista_argumentos VIRGULA expressao
+                             | expressao
         '''
         
-        p[0] = Tree('lista_argumentos',[p[1],p[3]])
+        if len(p) == 4:
+            p[0] = Tree('lista_argumentos', [p[1], p[3]])
+        else:
+            p[0] = Tree('lista_argumentos', [p[1]])
 
     def p_lista_argumentos1(self, p):
         '''
-            lista_argumentos : expressao
-                             | vazio
+            lista_argumentos : vazio
         '''
 
-        p[0] = Tree('lista_argumentos1', [p[1]])
+        #p[0] = Tree('lista_argumentos1', [p[1]])
 
     def p_vazio(self, p):
         '''
@@ -369,8 +559,8 @@ class Parser:
         '''
 
     def p_error(self, p):
-        if p is None:
-            print("Sintax Error")
-            exit(1)
+        if p:
+            raise SyntaxError(" '%s', linha %d" % (p.value, p.lineno))
         else:
-            print("Erro sintático: '%s', linha %d" % (p.value, p.lineno))
+            raise SyntaxError(" definições incompletas!")
+            exit(1)
