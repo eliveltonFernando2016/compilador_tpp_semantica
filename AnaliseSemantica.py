@@ -36,20 +36,21 @@ class Semantica():
                 self.escopo = "global"
 
     def declaracao_variaveis(self, node):
-        tipo = node.child[0].type
-        arr_name = ""
+        if(len(node.child) >= 1):
+            tipo = node.child[0].type
+            arr_name = ""
 
-        for son in self.lista_variaveis(node.child[0]):
-            if("[" in son):
-                arr_name = son.split('[')[0]
-                son = arr_name
-            if(self.escopo + '-' + son in self.simbolos.keys()):
-                print("Erro: A variável '" + son + "' já foi declarada anteriormente.")
-            if("global-" + son in self.simbolos.keys()):
-                print("Erro: A variável '" + son + "' já foi declarada anteriormente.")
-            if(son in self.simbolos.keys()):
-                print("Erro: Já existe uma função com o nome '" + son + "'")
-            self.simbolos[self.escopo + "-" + son] = ["variavel", son, False, False, tipo, 0]
+            for son in self.lista_variaveis(node.child[0]):
+                if("[" in son):
+                    arr_name = son.split('[')[0]
+                    son = arr_name
+                if(self.escopo + '-' + son in self.simbolos.keys()):
+                    print("Erro: A variável '" + son + "' já foi declarada anteriormente.")
+                if("global-" + son in self.simbolos.keys()):
+                    print("Erro: A variável '" + son + "' já foi declarada anteriormente.")
+                if(son in self.simbolos.keys()):
+                    print("Erro: Já existe uma função com o nome '" + son + "'")
+                self.simbolos[self.escopo + "-" + son] = ["variavel", son, False, False, tipo, 0]
         return "void"
 
     def inicializacao_variaveis(self,node):
@@ -78,10 +79,10 @@ class Semantica():
         if(node is not None):
             if(len(node.child) == 1):
                 tipo = "void"
-                
-                if node.child[0].value in self.simbolos.keys():
+
+                if node.child[0] in self.simbolos.keys():
                     print ("Erro: Função " + node.child[0].value + " já foi declarada.")
-                elif "global-" + node.child[0].value in self.simbolos.keys():
+                elif "global-" + str(node.child[0]) in self.simbolos.keys():
                     print ("Erro: Uso duplicado do nome '" + node.child[0].value  + "'")
 
                 self.simbolos[node.child[0].value] = ["funcao", node.child[0].value, [], False, tipo, 0]
@@ -120,10 +121,11 @@ class Semantica():
             return ("[]"+variavel)
 
     def cabecalho(self,node):
-        lista_par = self.lista_parametros(node.child[0])
+        if(node is not None and len(node.child) >= 1):
+            lista_par = self.lista_parametros(node.child[0])
 
-        if(lista_par is not "void"):
-            self.simbolos[node.value][2] = lista_par
+            if(lista_par is not "void"):
+                self.simbolos[node.value][2] = lista_par
 
         if(node is not None and len(node.child) >= 2):
             tipo_corpo = self.corpo(node.child[1])
@@ -139,8 +141,8 @@ class Semantica():
         if(node is not None):
             if(node.value == "inteiro" or node.value == "flutuante"):
                 return node.value
-            else:
-                print("Erro: Somente tipos inteiros e flutuantes são aceitos. Tipo entrado: " + node.value)
+            #else:
+            #    print("Erro: Somente tipos inteiros e flutuantes são aceitos. Tipo entrado: " + node.value)
 
     def expressao(self, node):
         if(node.child[0].type ==  "expressao_simples"):
@@ -166,7 +168,7 @@ class Semantica():
     def corpo(self, node):
         if(node.child != None):
             if(len(node.child) == 1):
-                return self.vazio(node.child[0])		
+                return self.vazio()		
             else:
                 tipo2c = self.acao(node.child[1])
                 if(tipo2c != None):
@@ -187,11 +189,12 @@ class Semantica():
         return "void"
 
     def parametro(self, node):
-        if(node.child[0].type == "parametro"):
-            return self.parametro(node.child[0]) + "[]"
-        else:
-            self.simbolos[self.escopo + "-" + node.value] = ["variavel", node.value, False, False, node.child[0].type, 0]
-            return self.tipo(node.child[0])
+        if(node is not None and len(node.child) >= 1):
+            if(node.child[0].type == "parametro"):
+                return self.parametro(node.child[0]) + "[]"
+            else:
+                self.simbolos[self.escopo + "-" + node.value] = ["variavel", node.value, False, False, node.child[0].type, 0]
+                return self.tipo(node.child[0])
 
     def acao(self, node):
         if(node.child[0].type == "expressao"):
@@ -254,7 +257,7 @@ class Semantica():
         return self.corpo(node.child[0])
 
     def leia(self, node):
-        if self.scope + "-" + node.value not in self.simbolos.keys():
+        if self.escopo + "-" + node.value not in self.simbolos.keys():
             if "global-" + node.value not in self.simbolos.keys():
                 print("Erro: " + node.value + " não declarada")
         return "void"
@@ -395,7 +398,7 @@ class Semantica():
             return ret_args
 
     def check_main(self, simbolos):
-        if("global-principal" not in simbolos.keys()):
+        if("principal" not in simbolos.keys()):
             print("Erro: função principal não declarada")
 
     def check_utilizadas(self, simbolos):
@@ -419,4 +422,4 @@ if __name__ == '__main__':
 	code = open(sys.argv[1])
 	s = Semantica(code.read())
 	#print_tree(s.tree)
-	pprint.pprint(s.simbolos, depth=3, width=300)
+	#pprint.pprint(s.simbolos, depth=3, width=300)
