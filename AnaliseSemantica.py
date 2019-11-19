@@ -18,31 +18,28 @@ class Semantica():
         self.lista_declaracoes(node.child[0])
 
     def lista_declaracoes(self, node):
-        if(len(node.child) == 1):
-            self.declaracao(node.child[0])
-        else:
+        self.declaracao(node)
+
+        if(node is not None and len(node.child) > 0):
             self.lista_declaracoes(node.child[0])
-            self.declaracao(node.child[1])
+            if(len(node.child) > 1):
+                self.lista_declaracoes(node.child[1])
 
     def declaracao(self,node):
-        if(node.child[0].type == "declaracao_variaveis"):
-            self.declaracao_variaveis(node.child[0])
-        elif(node.child[0].type == "inicializacao_variaveis"):
-            self.inicializacao_variaveis(node.child[0])
-        else:
-            if(len(node.child[0].child) == 1):
-                self.escopo = node.child[0].child[0].value
+        if(node is not None and len(node.child) >= 1):
+            if(node.type == "declaracao_variaveis"):
+                self.declaracao_variaveis(node.child[0])
+            elif(node.type == "inicializacao_variaveis"):
+                self.inicializacao_variaveis(node.child[0])
             else:
-                self.escopo = node.child[0].child[1].value
-
-            self.declaracao_funcao(node.child[0])
-            self.escopo = "global"
+                self.declaracao_funcao(node.child[0])
+                self.escopo = "global"
 
     def declaracao_variaveis(self, node):
         tipo = node.child[0].type
         arr_name = ""
 
-        for son in self.lista_variaveis(node.child[1]):
+        for son in self.lista_variaveis(node.child[0]):
             if("[" in son):
                 arr_name = son.split('[')[0]
                 son = arr_name
@@ -68,29 +65,35 @@ class Semantica():
                 ret_args.append(node.child[0].value)
             return ret_args
         else:
-            ret_args = self.lista_variaveis(node.child[0])
-            if(len(node.child[1].child) == 1):
-                ret_args.append(node.child[1].value+self.indice(node.child[1].child[0]))
-            else:
-                ret_args.append(node.child[1].value)
+            if(len(node.child) > 0):
+                ret_args = self.lista_variaveis(node.child[0])
+
+                if(len(node.child[1].child) == 1):
+                    ret_args.append(node.child[1].value+self.indice(node.child[1].child[0]))
+                else:
+                    ret_args.append(node.child[1].value)
             return ret_args
     
     def declaracao_funcao(self, node):
-        if(len(node.child) == 1):
-            tipo = "void"
-            if node.child[0].value in self.simbolos.keys():
-                print ("Erro: Função " + node.child[0].value + " já foi declarada.")
-            elif "global-" + node.child[0].value in self.simbolos.keys():
-                print ("Erro: Uso duplicado do nome '" + node.child[0].value  + "'")
-            self.simbolos[node.child[0].value] = ["funcao", node.child[0].value, [], False, tipo, 0]	
-            self.cabecalho(node.child[0])
-        else:
-            tipo = self.tipo(node.child[0])
-            self.simbolos[node.child[1].value] = ["funcao", node.child[1].value, [], False, tipo, 0]
-            self.cabecalho(node.child[1])
+        if(node is not None):
+            if(len(node.child) == 1):
+                tipo = "void"
+                
+                if node.child[0].value in self.simbolos.keys():
+                    print ("Erro: Função " + node.child[0].value + " já foi declarada.")
+                elif "global-" + node.child[0].value in self.simbolos.keys():
+                    print ("Erro: Uso duplicado do nome '" + node.child[0].value  + "'")
+
+                self.simbolos[node.child[0].value] = ["funcao", node.child[0].value, [], False, tipo, 0]
+                self.cabecalho(node.child[0])
+            elif(len(node.child) == 2):
+                tipo = self.tipo(node.child[0])
+                self.simbolos[node.child[1].value] = ["funcao", node.child[1].value, [], False, tipo, 0]
+                self.cabecalho(node.child[1])
 
     def atribuicao(self, node):
         nome = self.escopo + "-" + node.child[0].value
+
         if(self.escopo + "-" + node.child[0].value not in self.simbolos.keys()):
             nome = "global" + "-" + node.child[0].value
             if("global" + "-" + node.child[0].value not in self.simbolos.keys()):
@@ -119,20 +122,25 @@ class Semantica():
     def cabecalho(self,node):
         lista_par = self.lista_parametros(node.child[0])
 
-        self.simbolos[node.value][2] = lista_par
-        tipo_corpo = self.corpo(node.child[1])
-        tipo_fun = self.simbolos[node.value][4]
-        if tipo_corpo != tipo_fun:
-            if(node.value == "principal"):
-                print("Warning: a função '"+node.value+"' deveria retornar: '"+tipo_fun+"' mas retorna '"+tipo_corpo+"'")
-            else:	
-                print("Erro: a função '"+node.value+"' deveria retornar: '"+tipo_fun+"' mas retorna '"+tipo_corpo+"'")
+        if(lista_par is not "void"):
+            self.simbolos[node.value][2] = lista_par
+
+        if(node is not None and len(node.child) >= 2):
+            tipo_corpo = self.corpo(node.child[1])
+            tipo_fun = self.simbolos[node.value][4]
+        
+            if tipo_corpo != tipo_fun:
+                if(node.child[1].value == "principal"):
+                    print("Warning: a função '"+str(node.child[1].value)+"' deveria retornar: '"+str(tipo_fun)+"' mas retorna '"+str(tipo_corpo)+"'")
+                else:
+                    print("Erro: a função '"+str(node.child[1].value)+"' deveria retornar: '"+str(tipo_fun)+"' mas retorna '"+str(tipo_corpo)+"'")
 
     def tipo(self,node):
-        if(node.type == "inteiro" or node.type == "flutuante"):
-            return node.type
-        else:
-            print("Erro: Somente tipos inteiros e flutuantes são aceitos. Tipo entrado: " + node.type)
+        if(node is not None):
+            if(node.value == "inteiro" or node.value == "flutuante"):
+                return node.value
+            else:
+                print("Erro: Somente tipos inteiros e flutuantes são aceitos. Tipo entrado: " + node.value)
 
     def expressao(self, node):
         if(node.child[0].type ==  "expressao_simples"):
@@ -142,16 +150,18 @@ class Semantica():
 
     def lista_parametros(self, node):
         lista_param = []
-        if(len(node.child) == 1):
-            if(node.child[0] == None):
-                return self.vazio(node.child[0])
-            else:
-                lista_param.append(self.parametro(node.child[0]))
-                return lista_param
-        else:
-            lista_param = self.lista_parametros(node.child[0])
-            lista_param.append(self.parametro(node.child[1]))
-            return lista_param
+
+        if(node is not None):
+            if(len(node.child) == 1):
+                if(node.child[0] == None):
+                    return self.vazio()
+                else:
+                    lista_param.append(self.parametro(node.child[0]))
+            elif(len(node.child) == 2):
+                lista_param = self.lista_parametros(node.child[0])
+                lista_param.append(self.parametro(node.child[1]))
+        
+        return lista_param
 
     def corpo(self, node):
         if(node.child != None):
@@ -173,7 +183,7 @@ class Semantica():
                 print("Warning: Operação com tipos diferentes '" + tipo1 + "' e '" + tipo2)
             return "logico"
 
-    def vazio(self, node):
+    def vazio(self):
         return "void"
 
     def parametro(self, node):
@@ -385,7 +395,7 @@ class Semantica():
             return ret_args
 
     def check_main(self, simbolos):
-        if("principal" not in simbolos.keys()):
+        if("global-principal" not in simbolos.keys()):
             print("Erro: função principal não declarada")
 
     def check_utilizadas(self, simbolos):
@@ -409,4 +419,4 @@ if __name__ == '__main__':
 	code = open(sys.argv[1])
 	s = Semantica(code.read())
 	#print_tree(s.tree)
-	#pprint.pprint(s.simbolos, depth=3, width=300)
+	pprint.pprint(s.simbolos, depth=3, width=300)
