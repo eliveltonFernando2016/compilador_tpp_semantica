@@ -3,7 +3,7 @@ inteiro: tam
 
 tam := 10
 
-inteiro preencheVetor( inteiro: x)
+inteiro preencheVetor()
   inteiro: i
   inteiro: j
   i := 0
