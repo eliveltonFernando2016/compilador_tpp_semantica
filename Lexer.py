@@ -2,6 +2,7 @@
 
 import ply.lex as lex
 import sys
+from sys import argv
 
 class Lexer:
 	def __init__(self):
@@ -103,3 +104,8 @@ class Lexer:
 			if not t:
 				break
 			print(f'Tipo: {t.type:10} Valor: {t.value:14} Linha: {t.lineno:<3} Posicao: {t.lexpos}')
+
+if __name__ == '__main__':
+	lexer = Lexer()
+	f = open(argv[1])
+	lexer.test(f.read())

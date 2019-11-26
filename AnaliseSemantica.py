@@ -13,12 +13,21 @@ class Semantica():
         self.check_main(self.simbolos)
         self.check_utilizadas(self.simbolos)
         self.check_functions(self.simbolos)
-    
+
     def programa(self,node):
         self.lista_declaracoes(node.child[0])
 
     def lista_declaracoes(self, node):
-        self.declaracao(node)
+        #print(node)
+        a = [ 'lista_variaveis1', 
+              'declaracao_funcao',
+              'declaracao',
+              'tipo',
+              'cabecalho',
+              'declaracao_variaveis'
+            ]
+        if node is not None and node.type in a:
+            self.declaracao(node)
 
         if(node is not None and len(node.child) > 0):
             self.lista_declaracoes(node.child[0])
@@ -404,6 +413,7 @@ class Semantica():
     def check_utilizadas(self, simbolos):
         for k,v in simbolos.items():
             if(v[0] == "variavel"):
+                #print("k:", k, ", ", "V: ", v)
                 if(v[2] == False):
                     escopo=k.split("-")
                     
@@ -421,5 +431,4 @@ class Semantica():
 if __name__ == '__main__':
 	code = open(sys.argv[1])
 	s = Semantica(code.read())
-	#print_tree(s.tree)
 	#pprint.pprint(s.simbolos, depth=3, width=300)

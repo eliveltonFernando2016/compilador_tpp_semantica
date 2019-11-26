@@ -22,7 +22,7 @@ class Parser:
 
     def p_lista_declaracoes(self, p):
         '''
-        lista_declaracoes : lista_declaracoes declaracao
+            lista_declaracoes : lista_declaracoes declaracao
         '''
         
         p[0] = Tree('lista_declaracoes', [p[1], p[2]])
@@ -168,7 +168,7 @@ class Parser:
         '''
             declaracao_funcao : tipo cabecalho
         '''
-        
+
         p[0] = Tree('declaracao_funcao',[p[1],p[2]])
 
     def declaracao_funcao1(self, p):

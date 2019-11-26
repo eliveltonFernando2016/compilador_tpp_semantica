@@ -15,9 +15,9 @@ class Imprimir():
 	def mostra_tree(self, node, strson, father, w, i):
 		if node != None :
 			i = i + 1
-			father = str(node) + " " + str(i-1)+ " " + str(self.j-1)
+			father = str(node) + " " + str(self.j-1)
 			for son in node.child:
-				strson = str(son) + " " + str(i) + " " + str(self.j)
+				strson = str(son) + " " + str(self.j)
 				w.edge(father, strson)
 				self.j = self.j + 1
 				self.mostra_tree(son, strson, father, w, i)
@@ -52,6 +52,8 @@ if __name__ == '__main__':
         tree = Imprimir().mostra_tree(arvore.ast,'','', w, i=0)
 
         w.view()
+
+        imprime_arvore(arvore.ast)
 
     except IOError:
         print("Erro: Arquivo não encontrado. Verifique se o nome ou diretório está correto.")
