@@ -59,8 +59,6 @@ class Semantica():
             tipo = node.child[0].value
             arr_name = ""
 
-            #print(node.child[0].value, ": ", node.child[1].child[0].value)
-
             for son in self.lista_variaveis(node.child[1]):
                 if("[" in son):
                     arr_name = son.split('[')[0]
@@ -99,25 +97,25 @@ class Semantica():
     def declaracao_funcao(self, node):
         if(node is not None):
             if(len(node.child) == 1 and node.child[0] is not None):
+                nome_funcao = node.child[0].value
+                cabecalho = node.child[0]
                 tipo = "void"
-
-                if node.child[0] in self.simbolos.keys():
-                    print ("Erro: Função " + node.child[0].value + " já foi declarada.")
-                elif "global-" + str(node.child[0]) in self.simbolos.keys():
-                    print ("Erro: Uso duplicado do nome '" + node.child[0].value  + "'")
-
-                self.simbolos[node.child[0].value] = ["funcao", node.child[0].value, [], False, tipo, 0]
-                self.cabecalho(node.child[0])
             elif(len(node.child) == 2):
-                tipo = self.tipo(node.child[0])
-                self.simbolos[node.child[1].value] = ["funcao", node.child[1].value, [], False, tipo, 0]
-                self.cabecalho(node.child[1])
+                tipo = node.child[0].value
+
+                nome_funcao = node.child[1].value
+                cabecalho = node.child[1]
+
+            if node.child[0] in self.simbolos.keys():
+                print ("Erro: Função " + node.child[0].value + " já foi declarada.")
+            elif "global-" + str(node.child[0]) in self.simbolos.keys():
+                print ("Erro: Uso duplicado do nome '" + node.child[0].value  + "'")
+
+            self.simbolos[nome_funcao] = ["funcao", nome_funcao, [], False, tipo, 0]
+            self.cabecalho(cabecalho)
 
     def atribuicao(self, node):
         nome = self.escopo + "-" + node.child[0].value
-
-        
-        #print(self.escopo)
 
         if(self.escopo + "-" + node.child[0].value not in self.simbolos.keys()):
             nome = "global" + "-" + node.child[0].value
@@ -165,8 +163,6 @@ class Semantica():
         if(node is not None):
             if(node.value == "inteiro" or node.value == "flutuante"):
                 return node.value
-            #else:
-            #    print("Erro: Somente tipos inteiros e flutuantes são aceitos. Tipo entrado: " + node.value)
 
     def expressao(self, node):
         if(node.child[0].type ==  "expressao_simples"):
@@ -428,7 +424,6 @@ class Semantica():
     def check_utilizadas(self, simbolos):
         for k,v in simbolos.items():
             if(v[0] == "variavel"):
-                #print("k:", k, ", ", "V: ", v)
                 if(v[2] == False):
                     escopo=k.split("-")
                     
