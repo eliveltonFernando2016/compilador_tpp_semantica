@@ -15,41 +15,53 @@ class Semantica():
         self.check_functions(self.simbolos)
 
     def programa(self,node):
-        self.lista_declaracoes(node.child[0])
+        self.lista_declaracoes(node.child[0], "global")
 
-    def lista_declaracoes(self, node):
+    def lista_declaracoes(self, node, scope):
         #print(node)
-        a = [ 'lista_variaveis1', 
+        a = [ 'lista_variaveis', 
               'declaracao_funcao',
               'declaracao',
               'tipo',
               'cabecalho',
-              'declaracao_variaveis'
+              'declaracao_variaveis',
+              'lista_parametros',
+              'var',
+              'acao',
+              'corpo'
             ]
-        if node is not None and node.type in a:
+        if node is not None:# node.type in a:
+            self.escopo = scope
             self.declaracao(node)
 
         if(node is not None and len(node.child) > 0):
-            self.lista_declaracoes(node.child[0])
+            self.lista_declaracoes(node.child[0], scope)
+
             if(len(node.child) > 1):
-                self.lista_declaracoes(node.child[1])
+                if(node.type == "declaracao_funcao"):
+                    scope = node.child[1].value
+                self.lista_declaracoes(node.child[1], scope)
 
     def declaracao(self,node):
         if(node is not None and len(node.child) >= 1):
             if(node.type == "declaracao_variaveis"):
-                self.declaracao_variaveis(node.child[0])
-            elif(node.type == "inicializacao_variaveis"):
-                self.inicializacao_variaveis(node.child[0])
-            else:
-                self.declaracao_funcao(node.child[0])
+                self.declaracao_variaveis(node)
+            elif(node.type == "atribuicao"):
+                self.inicializacao_variaveis(node)
+            elif(node.type == "declaracao_funcao"):
+                self.declaracao_funcao(node)
                 self.escopo = "global"
+            #else:
+            #    print(node.type, ", ", node.value)
 
     def declaracao_variaveis(self, node):
         if(len(node.child) >= 1):
-            tipo = node.child[0].type
+            tipo = node.child[0].value
             arr_name = ""
 
-            for son in self.lista_variaveis(node.child[0]):
+            #print(node.child[0].value, ": ", node.child[1].child[0].value)
+
+            for son in self.lista_variaveis(node.child[1]):
                 if("[" in son):
                     arr_name = son.split('[')[0]
                     son = arr_name
@@ -63,7 +75,7 @@ class Semantica():
         return "void"
 
     def inicializacao_variaveis(self,node):
-        self.atribuicao(node.child[0])
+        self.atribuicao(node)
 
     def lista_variaveis(self, node):
         ret_args = []		
@@ -86,7 +98,7 @@ class Semantica():
     
     def declaracao_funcao(self, node):
         if(node is not None):
-            if(len(node.child) == 1):
+            if(len(node.child) == 1 and node.child[0] is not None):
                 tipo = "void"
 
                 if node.child[0] in self.simbolos.keys():
@@ -103,6 +115,9 @@ class Semantica():
 
     def atribuicao(self, node):
         nome = self.escopo + "-" + node.child[0].value
+
+        
+        #print(self.escopo)
 
         if(self.escopo + "-" + node.child[0].value not in self.simbolos.keys()):
             nome = "global" + "-" + node.child[0].value
@@ -431,4 +446,4 @@ class Semantica():
 if __name__ == '__main__':
 	code = open(sys.argv[1])
 	s = Semantica(code.read())
-	#pprint.pprint(s.simbolos, depth=3, width=300)
+	pprint.pprint(s.simbolos, depth=3, width=300)
