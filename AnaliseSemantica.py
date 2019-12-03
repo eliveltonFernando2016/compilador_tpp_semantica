@@ -18,7 +18,6 @@ class Semantica():
         self.lista_declaracoes(node.child[0])
 
     def lista_declaracoes(self, node):
-        #print(node)
         a = [ 'lista_variaveis1', 
               'declaracao_funcao',
               'declaracao',
@@ -85,21 +84,22 @@ class Semantica():
             return ret_args
     
     def declaracao_funcao(self, node):
-        if(node is not None):
-            if(len(node.child) == 1):
-                tipo = "void"
+        print(node.child)
+        #and node.child[0] is not None
+        if(len(node.child) == 1):
+            tipo = "void"
 
-                if node.child[0] in self.simbolos.keys():
-                    print ("Erro: Função " + node.child[0].value + " já foi declarada.")
-                elif "global-" + str(node.child[0]) in self.simbolos.keys():
-                    print ("Erro: Uso duplicado do nome '" + node.child[0].value  + "'")
+            if node.child[0] in self.simbolos.keys():
+                print ("Erro: Função " + node.child[0].value + " já foi declarada.")
+            elif "global-" + str(node.child[0]) in self.simbolos.keys():
+                print ("Erro: Uso duplicado do nome '" + node.child[0].value  + "'")
 
-                self.simbolos[node.child[0].value] = ["funcao", node.child[0].value, [], False, tipo, 0]
-                self.cabecalho(node.child[0])
-            elif(len(node.child) == 2):
-                tipo = self.tipo(node.child[0])
-                self.simbolos[node.child[1].value] = ["funcao", node.child[1].value, [], False, tipo, 0]
-                self.cabecalho(node.child[1])
+            self.simbolos[node.child[0].value] = ["funcao", node.child[0].value, [], False, tipo, 0]
+            self.cabecalho(node.child[0])
+        elif(len(node.child) == 2):
+            tipo = self.tipo(node.child[0])
+            self.simbolos[node.child[1].value] = ["funcao", node.child[1].value, [], False, tipo, 0]
+            self.cabecalho(node.child[1])
 
     def atribuicao(self, node):
         nome = self.escopo + "-" + node.child[0].value
@@ -150,8 +150,6 @@ class Semantica():
         if(node is not None):
             if(node.value == "inteiro" or node.value == "flutuante"):
                 return node.value
-            #else:
-            #    print("Erro: Somente tipos inteiros e flutuantes são aceitos. Tipo entrado: " + node.value)
 
     def expressao(self, node):
         if(node.child[0].type ==  "expressao_simples"):
@@ -431,4 +429,4 @@ class Semantica():
 if __name__ == '__main__':
 	code = open(sys.argv[1])
 	s = Semantica(code.read())
-	#pprint.pprint(s.simbolos, depth=3, width=300)
+	pprint.pprint(s.simbolos, depth=3, width=300)
