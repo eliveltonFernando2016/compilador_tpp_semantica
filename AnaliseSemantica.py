@@ -18,29 +18,20 @@ class Semantica():
         self.lista_declaracoes(node.child[0], "global")
 
     def lista_declaracoes(self, node, scope):
-        #print(node)
-        a = [ 'lista_variaveis', 
-              'declaracao_funcao',
-              'declaracao',
-              'tipo',
-              'cabecalho',
-              'declaracao_variaveis',
-              'lista_parametros',
-              'var',
-              'acao',
-              'corpo'
-            ]
-        if node is not None:# node.type in a:
+        if node is not None:
             self.escopo = scope
             self.declaracao(node)
 
         if(node is not None and len(node.child) > 0):
-            self.lista_declaracoes(node.child[0], scope)
 
+            old_scope = scope
             if(len(node.child) > 1):
                 if(node.type == "declaracao_funcao"):
                     scope = node.child[1].value
                 self.lista_declaracoes(node.child[1], scope)
+
+            self.lista_declaracoes(node.child[0], scope)
+            scope = old_scope
 
     def declaracao(self,node):
         if(node is not None and len(node.child) >= 1):
@@ -51,8 +42,8 @@ class Semantica():
             elif(node.type == "declaracao_funcao"):
                 self.declaracao_funcao(node)
                 self.escopo = "global"
-            #else:
-            #    print(node.type, ", ", node.value)
+            else:
+                print(node.type)
 
     def declaracao_variaveis(self, node):
         if(len(node.child) >= 1):
@@ -115,18 +106,23 @@ class Semantica():
             self.cabecalho(cabecalho)
 
     def atribuicao(self, node):
-        nome = self.escopo + "-" + node.child[0].value
+        nome = self.escopo + "-" + node.value
 
         if(self.escopo + "-" + node.child[0].value not in self.simbolos.keys()):
             nome = "global" + "-" + node.child[0].value
             if("global" + "-" + node.child[0].value not in self.simbolos.keys()):
+                print(self.simbolos.keys())
                 print ("Erro: A variável '" + node.child[0].value + "' não foi declarada.")
+
         tipo_esperado  = self.simbolos[nome][4]
         tipo_recebido =  self.expressao(node.child[1])
+
         self.simbolos[nome][2]=True
         self.simbolos[nome][3]=True
+
         if(tipo_esperado != tipo_recebido):
             print ("Warning: Coerção implícita de tipos! Tipo esperado: " + tipo_esperado + ", tipo recebido: " + tipo_recebido +".")
+        
         return "void"
 
     def indice(self, node):
@@ -363,10 +359,13 @@ class Semantica():
     def chamada_funcao(self, node):
         if(node.value == "principal" and self.escopo == "principal"):
             print("Erro: Chamada recursiva para a função principal")
+        
         if(node.value == "principal" and self.escopo != "principal"):
             print("Erro: A função '" + self.escopo + "' realiza uma chamada para a função principal.")
+        
         if node.value not in self.simbolos.keys():
             print ("Erro: Função " + node.value + " não declarada")
+            return
 		
         self.simbolos[node.value][5] = 1
         argslista = []
