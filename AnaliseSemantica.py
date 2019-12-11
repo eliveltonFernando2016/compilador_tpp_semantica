@@ -23,7 +23,6 @@ class Semantica():
             self.declaracao(node)
 
         if(node is not None and len(node.child) > 0):
-
             old_scope = scope
             if(len(node.child) > 1):
                 if(node.type == "declaracao_funcao"):
@@ -42,8 +41,8 @@ class Semantica():
             elif(node.type == "declaracao_funcao"):
                 self.declaracao_funcao(node)
                 self.escopo = "global"
-            else:
-                print(node.type)
+            #else:
+            #    print("[",node, node.type, node.value,"]")
 
     def declaracao_variaveis(self, node):
         if(len(node.child) >= 1):
@@ -106,24 +105,23 @@ class Semantica():
             self.cabecalho(cabecalho)
 
     def atribuicao(self, node):
-        nome = self.escopo + "-" + node.value
+        if(len(node.child) >= 1):
+            nome = self.escopo + "-" + node.child[0].value
 
-        if(self.escopo + "-" + node.child[0].value not in self.simbolos.keys()):
-            nome = "global" + "-" + node.child[0].value
-            if("global" + "-" + node.child[0].value not in self.simbolos.keys()):
-                print(self.simbolos.keys())
+            if(nome not in self.simbolos.keys()):
                 print ("Erro: A variável '" + node.child[0].value + "' não foi declarada.")
+                return
 
-        tipo_esperado  = self.simbolos[nome][4]
-        tipo_recebido =  self.expressao(node.child[1])
+            tipo_esperado  = self.simbolos[nome][4]
+            tipo_recebido =  self.expressao(node.child[1])
 
-        self.simbolos[nome][2]=True
-        self.simbolos[nome][3]=True
+            self.simbolos[nome][2]=True
+            self.simbolos[nome][3]=True
 
-        if(tipo_esperado != tipo_recebido):
-            print ("Warning: Coerção implícita de tipos! Tipo esperado: " + tipo_esperado + ", tipo recebido: " + tipo_recebido +".")
-        
-        return "void"
+            if(tipo_esperado != tipo_recebido):
+                print ("Warning: Coerção implícita de tipos! Tipo esperado: " + tipo_esperado + ", tipo recebido: " + tipo_recebido +".")
+            
+        return
 
     def indice(self, node):
         if(len(node.child) == 1):
@@ -135,7 +133,7 @@ class Semantica():
             variavel=self.indice(node.child[0])
             tipo=self.expressao(node.child[1])
             if(tipo != "inteiro"):
-                print("Erro: index invalido, permitido sómente inteiro")
+                print("Erro: index invalido, permitido somente inteiro")
             return ("[]"+variavel)
 
     def cabecalho(self,node):
@@ -150,10 +148,10 @@ class Semantica():
             tipo_fun = self.simbolos[node.value][4]
         
             if tipo_corpo != tipo_fun:
-                if(node.child[1].value == "principal"):
-                    print("Warning: a função '"+str(node.child[1].value)+"' deveria retornar: '"+str(tipo_fun)+"' mas retorna '"+str(tipo_corpo)+"'")
+                if(node.value == "principal"):
+                    print("Warning: a função '"+str(node.value)+"' deveria retornar: '"+str(tipo_fun)+"' mas retorna '"+str(tipo_corpo)+"'")
                 else:
-                    print("Erro: a função '"+str(node.child[1].value)+"' deveria retornar: '"+str(tipo_fun)+"' mas retorna '"+str(tipo_corpo)+"'")
+                    print("Erro: a função '"+str(node.value)+"' deveria retornar: '"+str(tipo_fun)+"' mas retorna '"+str(tipo_corpo)+"'")
 
     def tipo(self,node):
         if(node is not None):
@@ -332,28 +330,35 @@ class Semantica():
 
     def var(self,node):
         nome = self.escopo + "-" + node.value
+        
         if(len(node.child) == 1):
             if(nome not in self.simbolos):
-                nome = "global-" + node.value				
+                nome = "global-" + node.value
+                
                 if(nome not in self.simbolos):
                     print("Erro: A váriavel '" + node.value + "' não foi declarada")
 
             if(self.simbolos[nome][3] == False):
                 print("Erro: váriavel '" + nome + "' não foi inicializada")
+            
             var = self.indice(node.child[0])			
+            
             self.simbolos[nome][4] = self.simbolos[nome][4] + var
             self.simbolos[nome][2] = True
+            
             return self.simbolos[nome][4]
-
         else:
             if(nome not in self.simbolos):
+                print(self.simbolos[nome][2])
                 nome = "global-" + node.value
                 if(nome not in self.simbolos):
                     print("Erro: A váriavel '" + node.value + "' não foi declarada")
+
             if(self.simbolos[nome][3] == False):
                 print("Erro: A váriavel '" + nome + "' não foi inicializada.")
 
             self.simbolos[nome][2] = True 
+            
             return self.simbolos[nome][4]
 
     def chamada_funcao(self, node):
